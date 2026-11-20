@@ -233,7 +233,33 @@ class ServicioNoDisponibleError(Exception):
      
      def procesar(self):
          """Marcar como completada"""
-         if self._estado == "CONFIRMADA":
+         if self._estado == "CONFIRMADA"
+
+          ==================================================
+ class GestorLogs:
+     """Manejo centralizado del archivo de registro de eventos y errores"""
+     
+     @staticmethod
+     def registrar(mensaje, tipo="INFO"):
+         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+         linea = f"[{timestamp}] [{tipo}] {mensaje}\n"
+         try:
+             with open("registro_eventos.log", "a", encoding="utf-8") as archivo:
+                 archivo.write(linea)
+         except Exception as e:
+             print(f" No se pudo escribir el log: {e}")
+     
+     @staticmethod
+     def info(mensaje):
+         GestorLogs.registrar(mensaje, "INFO")
+     
+     @staticmethod
+     def error(mensaje):
+         GestorLogs.registrar(mensaje, "ERROR")
+     
+     @staticmethod
+     def advertencia(mensaje):
+         GestorLogs.registrar(mensaje, "ADVERTENCIA")
              self._estado = "COMPLETADA"
              return f" Reserva {self._id} completada"
          return f" No se puede procesar reserva {self._id}: estado es {self._estado}"
