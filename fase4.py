@@ -167,6 +167,80 @@ class ServicioNoDisponibleError(Exception):
      
      def mostrar_informacion(self):
          return f" Cliente: {self._nombre} | Doc: {self._documento} | Correo: {self._correo
+
+  ==================================================
+ from datetime import datetime
+ class Reserva:
+     ESTADOS = {"PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"}
+     
+     def _init_(self, identificador, cliente, servicio, duracion):
+         self._id = identificador
+         self._cliente = cliente
+         self._servicio = servicio
+         self._duracion = duracion
+         self._estado = "PENDIENTE"
+         self._fecha_creacion = datetime.now()
+     
+     @property
+     def id(self):
+         return self._id
+     
+     @property
+     def estado(self):
+         return self._estado
+     
+     def confirmar(self):
+         """Confirmar la reserva con validaciones"""
+         try:
+             if self._estado != "PENDIENTE":
+                 raise ReservaInvalidaError(f"No se puede confirmar una reserva en estado {self._estado}")
+             
+             if not self._servicio.disponible:
+                 raise ServicioNoDisponibleError(f"El servicio {self._servicio.nombre} no está disponible")
+             
+             if self._duracion <= 0:
+                 raise ParametroInvalidoError("La duración debe ser mayor a cero")
+             
+             self._estado = "CONFIRMADA"
+             return f" Reserva {self._id} CONFIRMADA exitosamente"
          
+         except ReservaInvalidaError as e:
+             raise e
+         except ServicioNoDisponibleError as e:
+             raise e
+         except ParametroInvalidoError as e:
+             raise e
+         except Exception as e:
+             raise Exception(f"Error inesperado al confirmar reserva: {str(e)}")
+         finally:
+             # Siempre se ejecuta
+             pass
+     
+     def cancelar(self):
+         """Cancelar la reserva"""
+         try:
+             if self._estado == "COMPLETADA":
+                 raise ReservaInvalidaError("No se puede cancelar una reserva ya completada")
+             
+             if self._estado == "CANCELADA":
+                 raise ReservaInvalidaError("La reserva ya está cancelada")
+             
+             self._estado = "CANCELADA"
+             return f" Reserva {self._id} CANCELADA correctamente"
+         
+         except ReservaInvalidaError as e:
+             raise e
+     
+     def procesar(self):
+         """Marcar como completada"""
+         if self._estado == "CONFIRMADA":
+             self._estado = "COMPLETADA"
+             return f" Reserva {self._id} completada"
+         return f" No se puede procesar reserva {self._id}: estado es {self._estado}"
+     
+     def _str_(self):
+         return f" Reserva #{self._id} | Cliente: {self._cliente.nombre} | Servicio: {self._servicio.nombre} | Estado: {self._estado}"                                                                             
+
+                                                                               
 
 
