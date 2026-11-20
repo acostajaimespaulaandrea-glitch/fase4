@@ -267,6 +267,71 @@ class ServicioNoDisponibleError(Exception):
      def _str_(self):
          return f" Reserva #{self._id} | Cliente: {self._cliente.nombre} | Servicio: {self._servicio.nombre} | Estado: {self._estado}"                                                                             
 
+==================================================
+ class SistemaGestion:
+     """Clase principal que gestiona todo el sistema"""
+     
+     def _init_(self):
+         self._clientes = []
+         self._servicios = []
+         self._reservas = []
+         GestorLogs.info("=== SISTEMA INICIADO ===")
+     
+     def registrar_cliente(self, cliente):
+         try:
+             self._clientes.append(cliente)
+             GestorLogs.info(f"Cliente registrado: {cliente.nombre} | Doc: {cliente.documento}")
+             return True
+         except Exception as e:
+             GestorLogs.error(f"Error al registrar cliente: {e}")
+             raise
+     
+     def registrar_servicio(self, servicio):
+         self._servicios.append(servicio)
+         GestorLogs.info(f"Servicio registrado: {servicio.nombre}")
+     
+     def crear_reserva(self, reserva):
+         self._reservas.append(reserva)
+         GestorLogs.info(f"Reserva creada: #{reserva.id} - Estado: {reserva.estado}")
+         return reserva
+     
+     def listar_clientes(self):
+         return self._clientes
+     
+     def listar_servicios(self):
+         return self._servicios
+     
+     def listar_reservas(self):
+         return self._reservas
+ # ==================================================
+ #  SIMULACIÓN DE OPERACIONES (Mínimo 10)
+ # ==================================================
+ def ejecutar_simulacion():
+     print("=" * 60)
+     print("   SISTEMA INTEGRAL DE GESTIÓN — SOFTWARE FJ")
+     print("=" * 60)
+     
+     sistema = SistemaGestion()
+     
+     # ── Crear servicios disponibles ──
+     sala = ReservaSala()
+     equipos = AlquilerEquipos()
+     asesoria = AsesoriaEspecializada()
+     
+     sistema.registrar_servicio(sala)
+     sistema.registrar_servicio(equipos)
+     sistema.registrar_servicio(asesoria)
+     
+     print("\n Servicios disponibles:")
+     for s in sistema.listar_servicios():
+         print(f"   • {s.describir_servicio()}")
+     
+     # ═══════════════════════════════════════════════
+     # OPERACIÓN 1: Registrar cliente VÁLIDO
+     # ═══════════════════════════════════════════════
+     print("\n── OPERACIÓN 1: Registrar cliente válido ──")
+     try:
+         c1 = Cliente(1, "María López",
                                                                                
 
 
