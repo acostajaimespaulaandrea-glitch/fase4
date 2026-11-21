@@ -239,3 +239,98 @@
      
      def describir_servicio(self):
          return f" {self._nombre}: {self._descripcion} | Precio base: ${self._precio_base}/hora"
+
+# ==================================================
+ # 6. CLASE RESERVA
+ # ==================================================
+ class Reserva:
+     """Clase que representa una reserva con manejo de estados"""
+     ESTADOS = {"PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"}
+     
+     def _init_(self, identificador, cliente, servicio, duracion):
+         self._id = identificador
+         self._cliente = cliente
+         self._servicio = servicio
+         self._duracion = duracion
+         self._estado = "PENDIENTE"
+         self._fecha_creacion = datetime.now()
+         GestorLogs.info(f"Reserva creada: #{self._id} | Cliente: {cliente.nombre} | Servicio: {servicio.nombre}")
+     
+     @property
+     def id(self):
+         return self._id
+     
+     @property
+     def estado(self):
+         return self._estado
+     
+     @property
+     def cliente(self):
+         return self._cliente
+     
+     @property
+     def servicio(self):
+         return self._servicio
+     
+     @property
+     def duracion(self):
+         return self._duracion
+     
+     def confirmar(self):
+         """Confirmar la reserva con validaciones completas"""
+         try:
+             if self._estado != "PENDIENTE":
+                 raise ReservaInvalidaError(f"No se puede confirmar: estado actual es '{self._estado}'")
+             
+             if not self._servicio.disponible:
+                 raise ServicioNoDisponibleError(f"El servicio '{self._servicio.nombre}' no está disponible")
+             
+             if self._duracion <= 0:
+                 raise ParametroInvalidoError("La duración debe ser mayor a cero")
+             
+             self._estado = "CONFIRMADA"
+             GestorLogs.info(f"Reserva #{self._id}: CONFIRMADA")
+             return f"✅ Reserva #{self._id} CONFIRMADA — Cliente: {self._cliente.nombre}"
+         
+         except (ReservaInvalidaError, ServicioNoDisponibleError, ParametroInvalidoError) as e:
+             GestorLogs.error(f"Error al confirmar reserva #{self._id}: {e}")
+             raise
+         except Exception as e:
+             GestorLogs.error(f"Error inesperado al confirmar #{self._id}: {e}")
+             raise
+         finally:
+             pass
+     
+     def cancelar(self):
+         """Cancelar la reserva"""
+         try:
+             if self._estado == "COMPLETADA":
+                 raise ReservaInvalidaError("No se puede cancelar una reserva ya completada")
+             
+             if self._estado == "CANCELADA":
+                 raise ReservaInvalidaError("La reserva ya se encuentra cancelada")
+             
+             self._estado = "CANCELADA"
+             GestorLogs.info(f"Reserva #{self._id}: CANCELADA")
+             return f"❌ Reserva #{self._id} CANCELADA — Cliente: {self._cliente.nombre}"
+         
+         except ReservaInvalidaError as e:
+             GestorLogs.error(f"Error al cancelar #{self._id}: {e}")
+             raise
+     
+     def procesar(self):
+         """Marcar reserva como completada"""
+         if self._estado == "CONFIRMADA":
+             self._estado = "COMPLETADA"
+             GestorLogs.info(f"Reserva #{self._id}: COMPLETADA")
+             return f"✅ Reserva #{self._id} COMPLETADA"
+         mensaje = f"⚠️ No se puede procesar #{self._id}: estado = {self._estado}"
+         GestorLogs.advertencia(mensaje)
+         return mensaje
+     
+     def calcular_costo_reserva(self, **kwargs):
+         """Delega el cálculo al servicio — Polimorfismo"""
+         return self._servicio.calcular_costo(self._duracion, **kwargs)
+     
+     def _str_(self):
+         return f"📝 Reserva #{self._id} | Cliente: {self._cliente.nombre} | Servicio: {self._servicio.nombre} | Estado: {self._estado}"
