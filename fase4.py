@@ -128,3 +128,114 @@
      
      def mostrar_informacion(self):
          return f"👤 ID: {self._id} | Cliente: {self._nombre} | Doc: {self._documento} | Correo: {self._correo}"
+
+# ==================================================
+ # 5. CLASE ABSTRACTA SERVICIO Y SERVICIOS ESPECIALIZADOS
+ # ==================================================
+ class Servicio(ABC):
+     """Clase abstracta para todos los servicios ofrecidos"""
+     
+     def _init_(self, nombre, descripcion, precio_base, disponible=True):
+         self._nombre = nombre
+         self._descripcion = descripcion
+         self._precio_base = precio_base
+         self._disponible = disponible
+     
+     @property
+     def nombre(self):
+         return self._nombre
+     
+     @property
+     def disponible(self):
+         return self._disponible
+     
+     def marcar_no_disponible(self):
+         self._disponible = False
+         GestorLogs.info(f"Servicio '{self._nombre}' marcado como NO disponible")
+     
+     def marcar_disponible(self):
+         self._disponible = True
+         GestorLogs.info(f"Servicio '{self._nombre}' marcado como disponible")
+     
+     @abstractmethod
+     def calcular_costo(self, duracion, **kwargs):
+         """Calcular costo del servicio — polimorfismo"""
+         pass
+     
+     @abstractmethod
+     def describir_servicio(self):
+         """Devuelve la descripción completa del servicio"""
+         pass
+ class ReservaSala(Servicio):
+     """Servicio: Reserva de Salas"""
+     
+     def _init_(self):
+         super()._init_(
+             "Reserva de Sala",
+             "Espacios acondicionados para reuniones y eventos",
+             50.0
+         )
+     
+     def calcular_costo(self, duracion, impuesto=0.19, descuento=0.0, por_hora=False):
+         if duracion <= 0:
+             raise ParametroInvalidoError("La duración debe ser mayor a cero")
+         
+         if por_hora:
+             costo_base = self._precio_base * (duracion * 0.1)
+         else:
+             costo_base = self._precio_base * duracion
+         
+         monto_descuento = costo_base * descuento
+         subtotal = costo_base - monto_descuento
+         total = subtotal * (1 + impuesto)
+         return round(total, 2)
+     
+     def describir_servicio(self):
+         return f"🏠 {self._nombre}: {self._descripcion} | Precio base: ${self._precio_base}/día"
+ class AlquilerEquipos(Servicio):
+     """Servicio: Alquiler de Equipos"""
+     
+     def _init_(self):
+         super()._init_(
+             "Alquiler de Equipos",
+             "Computadores, proyectores y equipos especializados",
+             35.0
+         )
+     
+     def calcular_costo(self, duracion, impuesto=0.19, descuento=0.0, cantidad_equipos=1):
+         if duracion <= 0:
+             raise ParametroInvalidoError("La duración debe ser mayor a cero")
+         if cantidad_equipos <= 0:
+             raise ParametroInvalidoError("La cantidad de equipos debe ser mayor a cero")
+         
+         costo_base = self._precio_base * duracion * cantidad_equipos
+         monto_descuento = costo_base * descuento
+         subtotal = costo_base - monto_descuento
+         total = subtotal * (1 + impuesto)
+         return round(total, 2)
+     
+     def describir_servicio(self):
+         return f"💻 {self._nombre}: {self._descripcion} | Precio base: ${self._precio_base}/día por equipo"
+ class AsesoriaEspecializada(Servicio):
+     """Servicio: Asesoría Especializada"""
+     
+     def _init_(self):
+         super()._init_(
+             "Asesoría Especializada",
+             "Orientación profesional en diferentes áreas",
+             80.0
+         )
+     
+     def calcular_costo(self, duracion_horas, impuesto=0.19, descuento=0.0, sesiones_grupo=False):
+         if duracion_horas <= 0:
+             raise ParametroInvalidoError("La duración debe ser mayor a cero")
+         
+         factor = 1.2 if sesiones_grupo else 1.0
+         costo_base = self._precio_base * duracion_horas * factor
+         monto_descuento = costo_base * descuento
+         subtotal = costo_base - monto_descuento
+         total = subtotal * (1 + impuesto)
+         return round(total, 2)
+     
+     def describir_servicio(self):
+         return f" {self._nombre}: {self._descripcion} | Precio base: ${self._precio_base}/hora"
