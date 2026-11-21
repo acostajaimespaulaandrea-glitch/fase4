@@ -371,3 +371,28 @@
      
      def listar_reservas(self):
          return self._reservas
+
+# ==================================================
+ # 8. SIMULACIÓN DE OPERACIONES
+ # ==================================================
+ def ejecutar_simulacion():
+     print("\n" + "=" * 60)
+     print("   SISTEMA INTEGRAL DE GESTIÓN — SOFTWARE FJ")
+     print("=" * 60 + "\n")
+     
+     sistema = SistemaGestion()
+     
+     # ── Crear servicios ──
+     sala = ReservaSala()
+     equipos = AlquilerEquipos()
+     asesoria = AsesoriaEspecializada()
+     
+     sistema.registrar_servicio(sala)
+     sistema.registrar_servicio(equipos)
+     sistema.registrar_servicio(asesoria)
+     
+     print("📋 SERVICIOS DISPONIBLES:")
+     for s in sistema.listar_servicios():
+         print(f"   • {s.describir_servicio()}")
+     print()
+     
