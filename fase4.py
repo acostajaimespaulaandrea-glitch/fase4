@@ -52,3 +52,22 @@
      @staticmethod
      def advertencia(mensaje):
          GestorLogs.registrar(mensaje, "ADVERTENCIA")
+
+# ==================================================
+ # 3. CLASE ABSTRACTA BASE
+ # ==================================================
+ class EntidadBase(ABC):
+     """Clase abstracta que representa a cualquier entidad del sistema"""
+     
+     def _init_(self, identificador):
+         self._id = identificador
+         self._fecha_creacion = datetime.now()
+     
+     @property
+     def id(self):
+         return self._id
+     
+     @abstractmethod
+     def mostrar_informacion(self):
+         """Método abstracto: cada clase hija debe implementarlo"""
+         pass
