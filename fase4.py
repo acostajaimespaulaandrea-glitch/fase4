@@ -395,4 +395,13 @@
      for s in sistema.listar_servicios():
          print(f"   • {s.describir_servicio()}")
      print()
+
+  # ═══════════════════════════════════════════════
+     # OPERACIÓN 1: Registrar cliente VÁLIDO
+     # ═══════════════════════════════════════════════
+     print("── OPERACIÓN 1: Registrar cliente válido ──")
+     try:
+         c1 = Cliente(1, "María López", "1098765432", "maria@email.com", "3123456789")
+         sistema.registrar_cliente(c1)
+         print(f"   ✅ {c1.mostrar_informacion()}")
      
